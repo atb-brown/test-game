@@ -1,10 +1,12 @@
-name: Build
+name: Deploy WebGL
 
-on: [pull_request]
+on:
+  push:
+    branches: [main]
 
 jobs:
   build:
-    name: Build The Project
+    name: Build And Deploy The Game
     runs-on: ubuntu-latest
     steps:
       # Checkout
@@ -30,6 +32,26 @@ jobs:
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
           targetPlatform: WebGL
+
+      # Handle git Commands
+      - uses: actions/checkout@v4
+        with:
+          clean: false
+      - name: git - Configure Username
+        run: git config user.name atb-brown
+        shell: bash
+      - name: git - Configure Email
+        run: git config user.email atb.austin@gmail.com
+        shell: bash
+      - name: git - Add changes
+        run: git --work-tree build/WebGL/WebGL add --all
+        shell: bash
+      - name: git - Commit changes
+        run: git commit -m "Automatic 'Deploy WebGL' action run by .github/workflows/deploy.yml"
+        shell: bash
+      - name: git - Push changes
+        run: git push origin HEAD:deploy --force
+        shell: bash
 
       # Output
       - uses: actions/upload-artifact@v3
