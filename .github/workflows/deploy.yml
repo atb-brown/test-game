@@ -35,6 +35,7 @@ jobs:
           targetPlatform: WebGL
 
       # Handle git Commands
+      - uses: actions/checkout@v4
       - name: git - Configure Username
         run: git config user.name atb-brown
         shell: bash
