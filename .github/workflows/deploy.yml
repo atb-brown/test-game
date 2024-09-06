@@ -36,6 +36,8 @@ jobs:
 
       # Handle git Commands
       - uses: actions/checkout@v4
+        with:
+          clean: false
       - name: git - Configure Username
         run: git config user.name atb-brown
         shell: bash
