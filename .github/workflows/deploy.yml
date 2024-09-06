@@ -2,8 +2,7 @@ name: Deploy WebGL
 
 on:
   push:
-    # TODO: Remove add-deploy-workflow branch after merging.
-    branches: [main, add-deploy-workflow]
+    branches: [main]
 
 jobs:
   build:
