@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using System;
 
 public class AbsorbPickup : MonoBehaviour
 {
@@ -24,9 +25,6 @@ public class AbsorbPickup : MonoBehaviour
         if ("Pickup" == collision.gameObject.tag) {
             if (isSmallEnoughToGrab(collision)) {
                 Destroy(collision.gameObject);
-                // TODO: Add the average dimensional size to the main object.
-                //     (x + y + z) / 3
-                // UnityEngine.Vector3 addedSize = new Vector3(1.0f, 1.0f, 1.0f);
                 UnityEngine.Vector3 incrementingSize = calcIncrementingSize(collision);
                 gameObject.transform.localScale += incrementingSize;
                 size += incrementingSize;
@@ -38,11 +36,11 @@ public class AbsorbPickup : MonoBehaviour
     {
         UnityEngine.Vector3 pickupSize = pickup.collider.bounds.size;
 
-        return (
-            isSmallEnoughRatio(pickupSize.x, size.x)
-            && isSmallEnoughRatio(pickupSize.y, size.y)
-            && isSmallEnoughRatio(pickupSize.z, size.z)
-        );
+        float pickupVolume = pickupSize.x * pickupSize.y * pickupSize.z;
+        float cubicRootOfPickupVol = cubicRoot(pickupSize);
+        float pickupSizeRatio = cubicRootOfPickupVol / size.x;
+
+        return (pickupSizeRatio < 0.25f);
     }
 
     static bool isSmallEnoughRatio(float pickupAxisSize, float objectAxisSize)
@@ -51,8 +49,13 @@ public class AbsorbPickup : MonoBehaviour
     }
 
     static UnityEngine.Vector3 calcIncrementingSize(Collision pickup) {
-        UnityEngine.Vector3 pickupSize = pickup.collider.bounds.size;
-        float avgSize2 = Queryable.Average((new List<float> { pickupSize.x, pickupSize.y, pickupSize.z }).AsQueryable()) / 3.14f;
-        return new UnityEngine.Vector3(avgSize2, avgSize2, avgSize2);
+        float addedSize = cubicRoot(pickup.collider.bounds.size) / 3.14f;
+        return new UnityEngine.Vector3(addedSize, addedSize, addedSize);
+    }
+
+    static float cubicRoot(UnityEngine.Vector3 size) {
+        // TODO: This needs to be fixed; I think this is using the "global" volume of the object because the object's orientation is effecting its volume calculation.
+        float volume = size.x * size.y * size.z;
+        return (float) Math.Pow(volume, (1.0f/3.0f));
     }
 }
